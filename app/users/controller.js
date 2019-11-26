@@ -95,12 +95,14 @@ exports.update = function (req, res) {
 }
 
 exports.delete = function (req, res) {
-    User.findOneAndRemove({_id: req.body.params})
+return  User.findOneAndDelete({_id:req.params.id})
     .then((err)=>{
         if(err){
             throw err
+        }else{
+            res.status(200).json({success: true, message: "Successfully removed user"})
         }
-        res.status(200).json({success: true, message: "Successfully removed user"})
+        
     })
     .catch((err)=>{
         throw err
