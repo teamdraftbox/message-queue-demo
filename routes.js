@@ -1,3 +1,5 @@
 module.exports= (app)=>{
-    app.use("/api/users",require("./app/users/index"))
+    console.log("route directory file")
+    app.use("/api",require("./app/users/index"))
+    app.use("/api",require("./app/task/index"))
 }

@@ -4,7 +4,7 @@ var userSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true, lowercase: true },
     password: { type: String, required: true },
     email: { type: String, unique: true, lowercase: true },
-    // tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
+    tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
 })
 
 userSchema.pre('save', function (next) {

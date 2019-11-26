@@ -2,14 +2,24 @@ var User = require("./model")
 var jwt = require('jsonwebtoken');
 const secret = process.env.SECRET
 
-exports.getAlluser = function (req, res)  {
-   User.find({}).exec()
-   .then((users)=>{
-     return users
-   })
-   .catch((err)=>{
-       throw err
-   })
+exports.getAlluser = function (req, res) {
+    return User.find({}).exec()
+        .then((users) => {
+            res.status(200).json(users)
+        })
+        .catch((err) => {
+            throw err
+        })
+}
+
+exports.getOneUser = function(req,res){
+    return User.findOne({_id:req.params.id})
+    .then((user)=>{
+        res.status(200).json({success: true, message: `Succesfully retrived user`, user})
+    })
+    .catch((err)=>{
+        throw err
+    })
 }
 exports.register = function (req, res) {
     var user = new User()
@@ -24,11 +34,11 @@ exports.register = function (req, res) {
         req.body.email === null) {
         res.json({ success: false, message: "invalid data" })
     } else {
-        user.save(function (err) {
+        user.save(function (err, data) {
             if (err) {
                 res.json({ success: false, message: "User already exsist" + err })
             } else {
-                res.json({ success: true, message: "Succesfully registered" })
+                res.status(200).json({ success: true, message: `Succesfully registered`, user: data })
             }
         })
     }
@@ -58,46 +68,44 @@ exports.login = function (req, res) {
 
     })
 }
-exports.update = function (req, res)  {
-    var obj = {
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password
-    }
-    User.findById(req.params.id, obj, function (err, updatedUser) {
-        if (err) {
-            res.json({ success: false, message: "Unable to find data" })
-        } else {
-            updatedUser.username = req.body.username;
-            updatedUser.password = req.body.password;
-            updatedUser.email = req.body.email;
-            if (req.body.username === null ||
-                req.body.username === "" ||
-                req.body.password === null ||
-                req.body.password === "" ||
-                req.body.email === "" ||
-                req.body.email === null) {
-                res.json({ success: false, message: "invalid data" })
-            } else {
-                user.save(function (err) {
-                    if (err) {
-                        res.json({ success: false, message: "User already exsist" + err })
-                    } else {
-                        res.json({ success: true, message: "Succesfully registered" })
-                    }
-                })
-            }
+exports.update = function (req, res) {
 
-        }
-    })
+    User.findById(req.params.id).exec()
+        .then((user) => {
+            if (!user) {
+                let err = new Error("User does not exist")
+            } else {
+                var obj = {
+                    username: req.body.username || user.username,
+                    email: req.body.email || user.email,
+                    password: req.body.password || user.password
+                }
+                return User.findOneAndUpdate({_id:req.body.id}, obj);
+            }
+        })
+        .then((err, user) => {
+            if (err) {
+                throw error
+            }
+            res.status(200).json({ success: true, message: "updated user credentials", user: user })
+        })
+        .catch((err) => {
+            throw err
+        })
 }
 
 exports.delete = function (req, res) {
-    User.findByIdAndDelete(req.body.params, function (err) {
-        if (err) {
-            res.json({ success: false, message: "Unable to find user" })
-        } else {
-            res.json({ success: true, message: "Successfully removed user" })
+    User.findOneAndRemove({_id: req.body.params})
+    .then((err)=>{
+        if(err){
+            throw err
         }
+        res.status(200).json({success: true, message: "Successfully removed user"})
     })
+    .catch((err)=>{
+        throw err
+    })
+ 
 }
+
+

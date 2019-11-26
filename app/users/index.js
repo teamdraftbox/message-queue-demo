@@ -2,11 +2,12 @@ const router = require('express').Router();
 const controller = require("./controller");
 const helper = require('../../helper/authCheck')
 
-router.get("/",controller.getAlluser)
-router.post("/", controller.register)
-router.post("/login", controller.login)
-router.put("/:id",helper.checkToken ,controller.update)
-router.delete("/:id",helper.checkToken ,controller.delete)
+router.get("/user",helper.checkToken,controller.getAlluser)
+router.post("/user", controller.register)
+router.post("/user/login", controller.login)
+router.get("/user/:id",helper.checkToken ,controller.getOneUser)
+router.put("/user/:id",helper.checkToken ,controller.update)
+router.delete("/user/:id",helper.checkToken ,controller.delete)
 
 
 

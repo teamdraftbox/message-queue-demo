@@ -26,8 +26,8 @@ mongoose.connection.once('open',()=>{
     console.log("Successfully connected to db")
 })
 
-require('./routes')(app)
 
+require('./routes')(app)
 app.use((err, req, res, next) => {
   console.log("error message main",err)
   if (!err) {
