@@ -6,7 +6,8 @@ var amqp = require('amqplib/callback_api');
 
 // if the connection is closed or fails to be established at all, we will reconnect
 var amqpConn = null;
-module.exports.start =  function () {
+let Task  = require("./app/task/model")
+exports.start = function  () {
     amqp.connect(process.env.CLOUDAMQP_URL + "?heartbeat=60", function (err, conn) {
         if (err) {
             console.error("[AMQP]", err.message);
@@ -51,13 +52,13 @@ function startPublisher() {
             var m = offlinePubQueue.shift();
             console.log('M = ', m);
             if (!m) break;
-            publish(m[0], m[1], m[2]);
+            exports.publish(m[0], m[1], m[2]);
         }
     });
 }
 
 // method to publish a message, will queue messages internally if the connection is down and resend later
-function publish(exchange, routingKey, content) {
+exports.publish = function (exchange, routingKey, content) {
     try {
         pubChannel.publish(exchange, routingKey, content, { persistent: true },
             function (err, ok) {
@@ -109,11 +110,24 @@ function startWorker() {
 }
 
 function work(msg, cb) {
-    console.log("Got msg", msg.content.toString());
+    let contentList = msg.content.toString().split(",");
+    let fact = factorial(new Number(contentList[1]));
+    let obj = {
+        status:"Completed",
+        factorial:fact
+    }
+    Task.findByIdAndUpdate(contentList[0],obj)
+    .then((data)=>{
+        console.log("successfully updated data",data)
+    })
+    .catch((err)=>{console.log("unable to update task",err)})
+    console.log("Got msg from producer", contentList[0]);
     setTimeout(() => cb(true), process.env.WORK_WAIT_TIME || 12000);
 }
 
-
+function factorial(n) {
+    return n ? n * factorial(n - 1) : 1;
+  }
 function closeOnErr(err) {
     if (!err) return false;
     console.error("[AMQP] error", err);
@@ -121,7 +135,8 @@ function closeOnErr(err) {
     return true;
 }
 
-setTimeout(function () {
-    publish("", "jobs", new Buffer.from("work work work"));
-}, 3000);
+// setTimeout(function () {
+//     publish("", "jobs", new Buffer.from("work work work"));
+// }, 3000);
+
 

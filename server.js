@@ -4,7 +4,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const db_name = process.env.DB_NAME;
-const db_password = process.env.DB_PASSWORD
+const db_password = process.env.DB_PASSWORD;
+const startMq = require("./queue").start
 app = express()
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -24,6 +25,7 @@ app.use(bodyParser.json())
 mongoose.connect(`mongodb://${db_name}:${db_password}@ds029979.mlab.com:29979/message-queue-demo`)
 mongoose.connection.once('open',()=>{
     console.log("Successfully connected to db")
+    startMq()
 })
 
 

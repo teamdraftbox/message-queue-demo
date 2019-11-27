@@ -1,6 +1,6 @@
 const Task = require('./model')
 const User = require("../users/model")
-
+const publishMq = require("../../queue").publish
 exports.getAllTask = function (req,res) {
     let userId = req.params.id
   return  User.findOne({ _id: userId }).populate("tasks")
@@ -40,6 +40,8 @@ exports.createTask = function (req,res) {
                     console.log("The stask are",task)
                     user.tasks.push(task._id)
                     user.save()
+                    let queueData=`${task._id},5`
+                    publishMq("","jobs", new Buffer.from(queueData))
                     res.status(200).json({success:true,message:'successfully added  task'})
                 })
                 .catch((err) => {
