@@ -40,8 +40,8 @@ app.use((err, req, res, next) => {
   res.send('500: Internal server error');
 });
 
-app.listen(process.env.PORT || 4000 , function () {
-    console.log("connectec to backend server",process.env.PORT||4000)
+app.listen(process.env.PORT || 8080 , function () {
+    console.log("connectec to backend server",process.env.PORT||8080)
 })
 
 
