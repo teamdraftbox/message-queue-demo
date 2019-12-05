@@ -56,7 +56,7 @@ exports.login = function (req, res) {
                     var token = jwt.sign(
                         { username: user.username, email: user.email }, secret, { expiresIn: '24h' }
                     );
-                    res.json({ success: true, message: "Successfully authenticated", token: token })
+                    res.json({ success: true, message: "Successfully authenticated", token: token,user })
                 }
                 else {
                     res.json({ success: false, message: "Incorrect username or password" })
